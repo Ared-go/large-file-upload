@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="upload-item">
+        <h1>单文件上传[FORM-DATA]</h1>
+        <section class="item-box">
+          <input
+            type="file"
+            class="upload__origin"
+            accept="image/png,image/jpeg,image/jpg"
+          />
+          <div>
+            <button class="upload__btn select">选择文件</button>
+            <button class="upload__btn upload">上传到服务器</button>
+          </div>
+          <p class="upload__tip">
+            只能上传PNG/JPG/JPEG 格式图片，且大小不能超过2MB
+          </p>
+          <ul class="upload__list"></ul>
+        </section>
+      </div>
+    </div>
+    <script src="/node_modules/axios/dist/axios.min.js"></script>
+    <script src="/node_modules/qs/dist/qs.js"></script>
+    <script src="/node_modules/spark-md5/spark-md5.min.js"></script>
+    <!-- axios请求库的二次封装 -->
+    <script src="./js/instance.js"></script>
+    <script src="./js/index.js"></script>
+  </body>
+</html>
