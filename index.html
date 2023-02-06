@@ -27,6 +27,23 @@
           <ul class="upload__list"></ul>
         </section>
       </div>
+      <div class="upload-item upload-item-base64">
+        <h1>单文件上传[Base64], 只适合图片</h1>
+        <section class="item-box">
+          <input
+            type="file"
+            class="upload__origin"
+            accept="image/png,image/jpeg,image/jpg"
+          />
+          <div>
+            <button class="upload__btn select">上传图片</button>
+          </div>
+          <p class="upload__tip">
+            只能上传PNG/JPG/JPEG 格式图片，且大小不能超过2MB
+          </p>
+          <ul class="upload__list"></ul>
+        </section>
+      </div>
     </div>
     <script src="/node_modules/axios/dist/axios.min.js"></script>
     <script src="/node_modules/qs/dist/qs.js"></script>
