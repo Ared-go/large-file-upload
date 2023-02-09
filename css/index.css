@@ -36,6 +36,9 @@
     color: red;
     cursor: pointer;
 }
+/* .upload-item .upload__thumbnail {
+    display: none;
+} */
 .upload-item.upload__btn.loading::after {
     content: ""
 }

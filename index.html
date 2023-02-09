@@ -44,6 +44,26 @@
           <ul class="upload__list"></ul>
         </section>
       </div>
+      <div class="upload-item upload-item-thumbnail">
+        <h1>单文件上传[缩略图], 只适合图片</h1>
+        <section class="item-box">
+          <input
+            type="file"
+            class="upload__origin"
+            accept="image/png,image/jpeg,image/jpg"
+          />
+          <div>
+            <button class="upload__btn select">上传图片</button>
+            <button class="upload__btn upload">上传到服务器</button>
+          </div>
+          <p class="upload__tip">
+            只能上传PNG/JPG/JPEG 格式图片，且大小不能超过2MB
+          </p>
+          <div class="upload__thumbnail">
+            <img alt="" />
+          </div>
+        </section>
+      </div>
     </div>
     <script src="/node_modules/axios/dist/axios.min.js"></script>
     <script src="/node_modules/qs/dist/qs.js"></script>

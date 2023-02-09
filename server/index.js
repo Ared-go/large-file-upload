@@ -76,6 +76,7 @@ const multipart_upload = (req, auto) => {
   let config = {
     maxFieldsSize: 200 * 1024 * 1024,
   };
+  // auto 为true 自动上传文件
   if (auto) config.uploadDir = uploadDir;
   return new Promise(async (resolve, reject) => {
     await delay();
@@ -148,7 +149,29 @@ app.post("/upload_single_base64", async (req, res) => {
   }
   writeFile(res, path, file, filename, false);
 });
-app.get("/", (req, res) => {
-  //   console.log(req, "req ====> ");
-  res.send("test");
+// 缩略图文件上传
+app.post("/upload_single_name", async (req, res) => {
+  try {
+    console.log("触发接口");
+    let { fields, files } = await multipart_upload(req);
+    let file = files.file && files.file[0],
+      filename = (fields.filename && fields.filename[0]) || "";
+    let pathFile = `${uploadDir}/filename`;
+    let isExist = isExistHandle(pathFile);
+    if (isExist) {
+      res.send({
+        code: 0,
+        codeText: "file is isExist",
+        originalFilename: file.originalFilename,
+        servicePath: file.path.replace(basePath, `${HOST_NAME}`),
+      });
+      return;
+    }
+    writeFile(res, pathFile, file, filename, false);
+  } catch (err) {
+    res.send({
+      code: 1,
+      codeTxt: err,
+    });
+  }
 });
