@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="./css/index.css" />
     <title>Document</title>
   </head>
   <body>
     <div class="container">
       <div class="upload-item">
-        <h1>单文件上传[FORM-DATA]</h1>
+        <h3>单文件上传[FORM-DATA]</h3>
         <section class="item-box">
           <input
             type="file"
@@ -28,7 +28,7 @@
         </section>
       </div>
       <div class="upload-item upload-item-base64">
-        <h1>单文件上传[Base64], 只适合图片</h1>
+        <h3>单文件上传[Base64], 只适合图片</h3>
         <section class="item-box">
           <input
             type="file"
@@ -45,7 +45,7 @@
         </section>
       </div>
       <div class="upload-item upload-item-thumbnail">
-        <h1>单文件上传[缩略图], 只适合图片</h1>
+        <h3>单文件上传[缩略图], 只适合图片</h3>
         <section class="item-box">
           <input
             type="file"
@@ -64,10 +64,33 @@
           </div>
         </section>
       </div>
+      <div class="upload-item upload-item-progress">
+        <h3>文件上传进度管控</h3>
+        <section class="item-box">
+          <input type="file" class="upload__origin" />
+          <div>
+            <button class="upload__btn select">上传文件</button>
+          </div>
+        </section>
+        <div class="upload__progress">
+          <div class="upload__progress--value"></div>
+        </div>
+      </div>
+      <div class="upload-item upload-item-multiple">
+        <h3>多文件上传</h3>
+        <section class="item-box">
+          <input type="file" class="upload__origin" multiple />
+          <div>
+            <button class="upload__btn select">上传文件</button>
+            <button class="upload__btn upload">上传到服务器</button>
+          </div>
+        </section>
+        <div class="upload__list"></div>
+      </div>
     </div>
-    <script src="/node_modules/axios/dist/axios.min.js"></script>
-    <script src="/node_modules/qs/dist/qs.js"></script>
-    <script src="/node_modules/spark-md5/spark-md5.min.js"></script>
+    <script src="../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../node_modules/qs/dist/qs.js"></script>
+    <script src="../node_modules/spark-md5/spark-md5.min.js"></script>
     <!-- axios请求库的二次封装 -->
     <script src="./js/instance.js"></script>
     <script src="./js/index.js"></script>

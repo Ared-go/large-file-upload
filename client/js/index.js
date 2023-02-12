@@ -1,3 +1,16 @@
+function delay(time) {
+  typeof time === "number" ? time : (time = 500);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
+}
+// 生成唯一数
+function createRandomNum() {
+  let random = Math.random() * new Date();
+  return random.toString(16).replace(".", "");
+}
 // 基于Form-data
 (function () {
   const upload_btn_select = document.querySelector(".upload__btn.select");
@@ -265,6 +278,187 @@
     // 文件预览
     thumbnail_img.style.display = "block";
     thumbnail_img.src = base64Url;
+  });
+
+  // 中转 触发文件选择器的点击
+  upload_btn_select.addEventListener("click", function () {
+    console.log("触发文件选择");
+    upload_ipt.click();
+  });
+})();
+
+// 文件上传进度管控
+(function () {
+  const upload_progress = document.querySelector(".upload-item-progress");
+  const upload_btn_select = upload_progress.querySelector(
+    ".upload__btn.select"
+  );
+  const upload_btn_upload = upload_progress.querySelector(
+    ".upload__btn.upload"
+  );
+  const upload_ipt = upload_progress.querySelector(".upload__origin");
+  const upload_bar_wrapper = upload_progress.querySelector(".upload__progress");
+  const progress_bar = upload_progress.querySelector(
+    ".upload__progress--value"
+  );
+  // 监听用户选择文件的操作
+  upload_ipt.addEventListener("change", async function () {
+    /**
+     * + name: 文件名
+     * + size: 文件大小
+     * + type: 文件的MIME类型
+     * **/
+    const file = this.files[0];
+    const limitSize = 200 * 1024 * 1024;
+    if (!file) return;
+
+    // 限制文件上传的大小
+    if (file.size > limitSize) return alert("上传的文件不能超过200MB");
+    const { filename } = file;
+    // 把文件传给服务器： FormData / Base64
+    let fm = new FormData();
+    fm.append("file", file);
+    fm.append("filename", filename);
+    try {
+      upload_bar_wrapper.style.display = "inline-block";
+      const res = await instance.post("/upload_single", fm, {
+        onUploadProgress(e) {
+          console.log(e, "e ====>");
+          const { progress } = e;
+          let percent = (progress * 100).toFixed(2);
+          progress_bar.style.width = `${percent}%`;
+        },
+      });
+      if (res.code === 0) {
+        progress_bar.style.width = `100%`;
+        await delay(500);
+        alert(`文件上传成功`);
+      }
+    } catch (err) {
+      alert("文件上传失败，请重新上传");
+    } finally {
+      progress_bar.style.width = `0%`;
+      upload_bar_wrapper.style.display = "none";
+    }
+
+    // .then((data) => {
+    //   if (+data.code === 0) {
+    //     return;
+    //   }
+    //   return Promise.reject(data.codeTxt);
+    // })
+    // .catch((reason) => {
+    //   alert("文(件上传失败，请你稍候再试~~");
+    // })
+    // .finally(() => {
+    //   clearHandle();
+    // });
+  });
+
+  // 中转 触发文件选择器的点击
+  upload_btn_select.addEventListener("click", function () {
+    console.log("触发文件选择");
+    upload_ipt.click();
+  });
+})();
+
+// 多文件上传
+(function () {
+  const upload_multipe = document.querySelector(".upload-item-multiple");
+  const upload_btn_select = upload_multipe.querySelector(".upload__btn.select");
+  const upload_btn_upload = upload_multipe.querySelector(".upload__btn.upload");
+  const upload_ipt = upload_multipe.querySelector(".upload__origin");
+  const multipe_list = upload_multipe.querySelector(".upload__list");
+  let _files = [];
+  // 监听用户上传到服务器
+  upload_btn_upload.addEventListener("click", async function () {
+    if (!_files.length) return alert("请选择文件");
+    console.log(_files, "_files is ====> ");
+    console.log(multipe_list, "multipe_list===> ");
+    let uploadLiList = Array.from(multipe_list.querySelectorAll("li"));
+    _files = _files.map((item) => {
+      let curLi = uploadLiList.find(
+          (childLi) => childLi.getAttribute("key") === item.key
+        ),
+        curSpan = curLi ? curLi.querySelector("span:nth-child(2)") : null;
+      console.log(curSpan, "curSpan ==============> ");
+      let fm = new FormData();
+      fm.append("file", item.file);
+      fm.append("filename", item.filename);
+      return instance
+        .post("/upload_single", fm, {
+          onUploadProgress(e) {
+            console.log(e.progress);
+            // 检测上传进度
+            if (curSpan) {
+              let percent = (e.progress * 100).toFixed(2);
+              curSpan.innerHTML = `${percent}%`;
+            }
+          },
+        })
+        .then((data) => {
+          if (+data.code === 0) {
+            return;
+          }
+          return Promise.reject();
+        });
+    });
+    Promise.all(_files)
+      .then(() => {
+        alert("恭喜你，所有文件都上传成功");
+      })
+      .catch(() => {
+        alert("很遗憾，上传过程中出现问题，请您稍后再试~~");
+      })
+      .finally(() => {
+        _files = [];
+        multipe_list.style.innerHTML = "";
+        multipe_list.style.display = "none";
+      });
+  });
+  // 利用事件委托来控制文件名的删除
+  multipe_list.addEventListener("click", function (ev) {
+    let target = ev.target,
+      curLi = null;
+    if (target.tagName === "EM") {
+      curLi = target.parentNode.parentNode;
+      if (!curLi) return;
+      multipe_list.removeChild(curLi);
+      key = curLi.getAttribute("key");
+      _files = _files.filter((item) => item.key !== key);
+      if (_files.length === 0) multipe_list.style.display = "none";
+    }
+  });
+  // 监听用户选择文件的操作
+  upload_ipt.addEventListener("change", async function () {
+    // console.log("this ==> ", this);
+    /**
+     * + name: 文件名
+     * + size: 文件大小
+     * + type: 文件的MIME类型
+     * **/
+    let str = "";
+    _files = Array.from(this.files);
+    console.log(_files, "====> files ");
+    _files = _files.map((item) => {
+      return {
+        file: item,
+        filename: item.name,
+        key: createRandomNum(),
+      };
+    });
+    _files.forEach(
+      (item) =>
+        (str += `
+      <li key=${item.key}>
+        <span>文件:${item.filename}</span>
+        <span class="remove"><em>移除</em></span>
+      </li>
+    `)
+    );
+    multipe_list.style.display = "inline-block";
+    multipe_list.innerHTML = str;
+    console.log(_files, "_files ===> ");
   });
 
   // 中转 触发文件选择器的点击

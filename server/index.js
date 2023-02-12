@@ -69,7 +69,7 @@ const writeFile = (res, path, file, filename, stream) => {
     });
   });
 };
-const uploadDir = `${__dirname}/upload`;
+const uploadDir = `${__dirname}/server/upload`;
 const basePath = path.resolve(__dirname, "../");
 const multipart_upload = (req, auto) => {
   typeof auto !== "boolean" ? (auto = false) : null;
