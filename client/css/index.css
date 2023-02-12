@@ -3,7 +3,9 @@
     grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
     gap: 16px;
 }
-
+.relative {
+    position: relative;
+}
 .upload-item {
     display: flex;
     flex-direction: column;
@@ -35,6 +37,25 @@
     align-items: center;
     margin-top: 12px;
 }
+.upload-item .upload__mask {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    text-align: center; /* display: flex;
+    justify-content: center;
+    align-items: center; */
+    background-color: rgba(0,0,0,.7);
+    color: #fff;
+}
+.upload-item .upload__mask .upload__mask__tip{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .upload-item .upload__list li >span:nth-child(1){
     display: inline-block;  
     max-width: 80%;
@@ -63,9 +84,11 @@
     color: red;
     cursor: pointer;
 }
-/* .upload-item .upload__thumbnail {
-    display: none;
-} */
+.upload-item .upload__thumbnail img {
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+}
 .upload-item.upload__btn.loading::after {
     content: ""
 }

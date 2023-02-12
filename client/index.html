@@ -87,6 +87,24 @@
         </section>
         <div class="upload__list"></div>
       </div>
+      <div class="upload-item upload-item-drag relative">
+        <h3>拖拽上传</h3>
+        <section class="item-box">
+          <input type="file" class="upload__origin" />
+          <div class="upload__drag">
+            <span
+              >将文件拖到此处，或<a
+                href="javascript:;"
+                class="upload__btn select"
+                >点击上传文件</a
+              ></span
+            >
+          </div>
+        </section>
+        <div class="upload__mask">
+          <span class="upload__mask__tip">正在上传中，请稍后...</span>
+        </div>
+      </div>
     </div>
     <script src="../node_modules/axios/dist/axios.min.js"></script>
     <script src="../node_modules/qs/dist/qs.js"></script>

@@ -467,3 +467,60 @@ function createRandomNum() {
     upload_ipt.click();
   });
 })();
+
+// 拖拽上传
+(function () {
+  const drag_wrapper = document.querySelector(".upload-item-drag");
+  const upload_btn_select = drag_wrapper.querySelector(".upload__btn.select");
+  const upload_ipt = drag_wrapper.querySelector(".upload__origin");
+  const drag_mask = drag_wrapper.querySelector(".upload__mask");
+  async function uploadFile(file) {
+    drag_mask.style.display = "inline-block";
+    let fm = new FormData();
+    fm.append("file", file);
+    fm.append("filename", file.name);
+    try {
+      const data = await instance.post("/upload_single", fm);
+      if (+data.code === 0) {
+        alert("文件上传成功");
+        return;
+      }
+      throw data.codeText;
+    } catch (err) {
+      alert("很遗憾，文件上传失败，请稍后重试");
+    } finally {
+      drag_mask.style.display = "none";
+    }
+  }
+  // 拖拽获取 dragenter dragleave dragover drop
+
+  // drag_wrapper.addEventListener("dragenter", function () {
+  // console.log("拖拽进入");
+  // 拖入时 do something 如容器样式的变化
+  // });
+  // drag_wrapper.addEventListener("dragleave", function () {
+  // 拖拽离开容器时 do something 如容器样式的变化
+  //   console.log("拖拽离开");
+  // });
+  drag_wrapper.addEventListener("dragover", function (e) {
+    console.log("在区域内");
+    e.preventDefault();
+  });
+  drag_wrapper.addEventListener("drop", function (e) {
+    console.log("文件放置", e);
+    // 阻止浏览器的默认行为=> 浏览器会默认将拖入的文件 视为预览行为
+    e.preventDefault();
+    let file = e.dataTransfer.files[0];
+    if (!file) return;
+    uploadFile(file);
+  });
+  upload_ipt.addEventListener("change", function () {
+    let file = this.files[0];
+    if (!file) return;
+    uploadFile(file);
+  });
+
+  upload_btn_select.addEventListener("click", () => {
+    upload_ipt.click();
+  });
+})();
