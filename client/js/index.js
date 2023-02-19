@@ -340,19 +340,6 @@ function createRandomNum() {
       progress_bar.style.width = `0%`;
       upload_bar_wrapper.style.display = "none";
     }
-
-    // .then((data) => {
-    //   if (+data.code === 0) {
-    //     return;
-    //   }
-    //   return Promise.reject(data.codeTxt);
-    // })
-    // .catch((reason) => {
-    //   alert("文(件上传失败，请你稍候再试~~");
-    // })
-    // .finally(() => {
-    //   clearHandle();
-    // });
   });
 
   // 中转 触发文件选择器的点击
@@ -521,6 +508,161 @@ function createRandomNum() {
   });
 
   upload_btn_select.addEventListener("click", () => {
+    upload_ipt.click();
+  });
+})();
+
+// 大文件切片上传
+(function () {
+  const upload_large_file = document.querySelector(".upload-item-large");
+  const upload_btn_select = upload_large_file.querySelector(
+    ".upload__btn.select"
+  );
+  const upload_btn_upload = upload_large_file.querySelector(
+    ".upload__btn.upload"
+  );
+  const upload_ipt = upload_large_file.querySelector(".upload__origin");
+  const upload_bar_wrapper =
+    upload_large_file.querySelector(".upload__progress");
+  const progress_bar = upload_large_file.querySelector(
+    ".upload__progress--value"
+  );
+
+  // 根据文件内容生成唯一的文件名
+  function changeHash(file) {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(file);
+      fileReader.addEventListener("load", () => {
+        let buffer = fileReader.result,
+          spark = new SparkMD5(),
+          HASH,
+          suffix;
+        spark.append(buffer);
+        HASH = spark.end();
+        suffix = /\.([a-z0-9A-Z]+$)/.exec(file.name)[1];
+        console.log(HASH, "HASH ==> ");
+        resolve({
+          buffer,
+          HASH,
+          suffix,
+          filename: `${HASH}.${suffix}`,
+        });
+      });
+    });
+  }
+
+  // 监听用户选择文件的操作
+  upload_ipt.addEventListener("change", async function () {
+    /**
+     * + name: 文件名
+     * + size: 文件大小
+     * + type: 文件的MIME类型
+     * **/
+    const file = this.files[0];
+    if (!file) return;
+    const { HASH, suffix } = await changeHash(file);
+    let already = [];
+    try {
+      // 获取已经上传的切片信息
+      let data = await instance.get("/upload_already", {
+        params: {
+          HASH,
+        },
+      });
+      if (+data.code === 0) {
+        already = data.fileList;
+      }
+    } catch (err) {}
+    // 文件切片处理 固定数量/固定大小
+    let max_size = 1024 * 1000,
+      count = Math.ceil(file.size / max_size),
+      index = 0,
+      chunks = [];
+    if (count > 100) {
+      // 切片数量大于100 我们就将数量限制为100
+      max_size = file.size / 100;
+      count = 100;
+    }
+    // 完成操作
+    async function complete() {
+      // 进度条管控
+      index++;
+      upload_bar_wrapper.style.display = "inline-block";
+      progress_bar.style.width = `${(index / count) * 100}%`;
+      console.log(index, "index ====> ");
+      if (index < count) return;
+      // 全部上传完成
+      progress_bar.style.width = `100%`;
+      try {
+        data = await instance.post(
+          "/upload_merge",
+          {
+            HASH,
+            count,
+          },
+          {
+            headers: {
+              "content-type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
+        if (+data.code === 0) {
+          alert(
+            `恭喜您，文件上传成功，您可以基于${data.servicePath} 访问该文件`
+          );
+          clear();
+          return;
+        }
+        throw data.codeText;
+      } catch (err) {
+        alert("切片合并失败");
+        clear();
+      }
+    }
+    // clear
+    function clear() {
+      progress_bar.style.width = `0%`;
+      upload_bar_wrapper.style.display = "none";
+    }
+    while (index < count) {
+      chunks.push({
+        file: file.slice(index * max_size, (index + 1) * max_size),
+        filename: `${HASH}_${index + 1}.${suffix}`,
+      });
+      index++;
+    }
+    // 重置索引
+    index = 0;
+    // 把每一个切片都上传到服务器上
+    chunks.forEach((chunk) => {
+      // 已经上传的无需再上传
+      if (already.length > 0 && already.includes(chunk.filename)) {
+        complete();
+        return;
+      }
+      let fm = new FormData();
+      fm.append("file", chunk.file);
+      fm.append("filename", chunk.filename);
+      instance
+        .post("/upload_chunk", fm)
+        .then((data) => {
+          if (+data.code === 0) {
+            complete();
+            return;
+          }
+          Promise.reject(data.codeText);
+        })
+        .catch((err) => {
+          alert("当前切片上传失败，请您稍后再试~~~");
+          clear();
+        });
+    });
+  });
+
+  // 中转 触发文件选择器的点击
+  upload_btn_select.addEventListener("click", function () {
+    console.log("触发文件选择");
     upload_ipt.click();
   });
 })();
